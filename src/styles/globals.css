@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  /**
+    * 1. Set the default font size to 62.5% so that 1rem = 10px.
+    * 2. Set the default font family to the system font stack.
+    */
+  font-size: 62.5%;
+}

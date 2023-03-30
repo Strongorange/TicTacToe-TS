@@ -23,8 +23,14 @@ const GamePlay = () => {
     .fill(null)
     .map(() => new Array(boardSize).fill(null));
 
+  /**
+   * @description 랜덤으로 플레이어를 정함.
+   */
+  const randomStartPlayer = Math.random() < 0.5 ? "X" : "O";
+
   const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
-  const [currentPlayer, setCurrentPlayer] = useState<CellValue>("X");
+  const [currentPlayer, setCurrentPlayer] =
+    useState<CellValue>(randomStartPlayer);
   const [winner, setWinner] = useState<CellValue>(null);
   const [boardHistory, setBoardHistory] = useState<BoardState[]>([
     initialBoardState,
@@ -95,19 +101,29 @@ const GamePlay = () => {
 
   // 3. 이전 상태를 보관하는 로직 추가
   const handleCellClick = (row: number, col: number) => {
-    // If the game is over or the cell is not empty, ignore the click
+    /**
+     * @description 이미 누군가가 놓았거나, 이미 승자가 결정되었으면 더 이상 놓을 수 없음.
+     */
     if (winner || boardState[row][col]) {
       return;
     }
 
+    /**
+     * @description 새로운 보드 상태를 생성.
+     * boardState를 직접 수정하면 생길 수 있는 문제를 방지하기위해, boardState와 동일한 배열을 생성하고 생성하고, 그 배열을 수정.
+     * @description 새로운 보드 상태를 boardHistory에 추가. (이전 상태를 보관하는 로직 추가)
+     * @description 새로운 보드 상태를 boardState에 저장.
+     */
     const newBoardState = boardState.map((row) => [...row]);
     newBoardState[row][col] = currentPlayer;
     const newBoardHistory = [...boardHistory, newBoardState];
-
     setBoardState(newBoardState);
     setBoardHistory(newBoardHistory);
 
-    // Check for a winner
+    /**
+     * @description 승자가 결정되었는지 확인
+     * @description 승자가 결정되었으면 승자를 표시하고, 아니면 플레이어를 전환.
+     */
     const gameWinner = checkWinner(newBoardState);
     if (gameWinner) {
       setWinner(gameWinner);

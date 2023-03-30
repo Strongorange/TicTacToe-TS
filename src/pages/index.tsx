@@ -15,7 +15,7 @@ export default function Home() {
         <title>Directional Test</title>
       </Head>
       <main>
-        <div className="w-ful flex h-screen items-center justify-center bg-amber-200">
+        <div className="flex h-screen w-full items-center justify-center bg-amber-200">
           {/**
            * @description 버튼들이 들어있는 박스
            */}

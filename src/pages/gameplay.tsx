@@ -50,9 +50,19 @@ const GamePlay = () => {
     // 세로 방향 검사
     for (let col = 0; col < boardSize; col++) {
       for (let row = 0; row <= boardSize - winTarget; row++) {
-        const winCol = board.slice(row, row + winTarget).map((r) => r[col]);
-        if (winCol.every((cell) => cell === winCol[0] && cell !== null)) {
-          return winCol[0];
+        let sameValue = true;
+        const firstCellValue = board[row][col];
+        if (firstCellValue === null) continue;
+
+        for (let i = 1; i < winTarget; i++) {
+          if (board[row + i][col] !== firstCellValue) {
+            sameValue = false;
+            break;
+          }
+        }
+
+        if (sameValue) {
+          return firstCellValue;
         }
       }
     }
@@ -60,12 +70,19 @@ const GamePlay = () => {
     // 왼쪽 대각선 방향 검사
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = 0; col <= boardSize - winTarget; col++) {
-        const winDiag: CellValue[] = [];
-        for (let i = 0; i < winTarget; i++) {
-          winDiag.push(board[row + i][col + i]);
+        let sameValue = true;
+        const firstCellValue = board[row][col];
+        if (firstCellValue === null) continue;
+
+        for (let i = 1; i < winTarget; i++) {
+          if (board[row + i][col + i] !== firstCellValue) {
+            sameValue = false;
+            break;
+          }
         }
-        if (winDiag.every((cell) => cell === winDiag[0] && cell !== null)) {
-          return winDiag[0];
+
+        if (sameValue) {
+          return firstCellValue;
         }
       }
     }
@@ -73,12 +90,19 @@ const GamePlay = () => {
     // 오른쪽 대각선 방향 검사
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = winTarget - 1; col < boardSize; col++) {
-        const winDiag: CellValue[] = [];
-        for (let i = 0; i < winTarget; i++) {
-          winDiag.push(board[row + i][col - i]);
+        let sameValue = true;
+        const firstCellValue = board[row][col];
+        if (firstCellValue === null) continue;
+
+        for (let i = 1; i < winTarget; i++) {
+          if (board[row + i][col - i] !== firstCellValue) {
+            sameValue = false;
+            break;
+          }
         }
-        if (winDiag.every((cell) => cell === winDiag[0] && cell !== null)) {
-          return winDiag[0];
+
+        if (sameValue) {
+          return firstCellValue;
         }
       }
     }

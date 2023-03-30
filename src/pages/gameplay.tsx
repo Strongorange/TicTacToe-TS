@@ -36,24 +36,51 @@ const GamePlay = () => {
     initialBoardState,
   ]);
 
+  /**
+   * @description 게임 보드의 가로, 세로, 대각선 방향을 검사하여 승리자를 찾음.
+   * @param board {BoardState} 게임 보드
+   * @returns {CellValue} 승리자의 표시. 승리자가 없으면 null.
+   */
   const checkWinner = (board: BoardState): CellValue => {
-    // 가로 방향 검사
+    /**
+     * @description 가로 방향의 승리 조건을 만족하는지 검사.
+     * @description winTarget이 3이고, boardSize가 5이라고 하면 가로에서는 해당 가로열을 모두 검색할 필요 없이 시작하는 부분의 열 부터 3개의 열을 검사.(winTarget)
+     * @example [o, o, x ,x ,x] 를 검사할때 index 0 번의 o는 index 4의 x 까지 검사할 필요 없이 index 2의 x 까지만 검사하면 됨.
+     * @example index 2번의 x를 검사할때 연속한 3개까지인 index 4번의 x까지 검사하면 되고 이 경우 승리 조건을 만족함.
+     */
     for (let row = 0; row < boardSize; row++) {
       for (let col = 0; col <= boardSize - winTarget; col++) {
         const winRow = board[row].slice(col, col + winTarget);
+
+        /**
+         * @description winRow의 모든 요소가 같은 값이고 null이 아닌 경우 승리 조건을 만족함.
+         * @returns {CellValue} 승리자의 표시.
+         */
         if (winRow.every((cell) => cell === winRow[0] && cell !== null)) {
           return winRow[0];
         }
       }
     }
 
-    // 세로 방향 검사
+    /**
+     * @description 세로 방향에서는 가로방향과 다르게 col, row 순서로 검사.
+     * @description 가로 방향과 마찬가지로 winTarget이 3이고, boardSize가 5이라고 하면 세로에서는 해당 세로열을 모두 검색할 필요 없이 시작하는 부분의 행 부터 3개의 행을 검사.(winTarget)
+     * @example [[o,x,o,x,o,x],
+     *           [o,x,o,x,o,x],
+     *           [o,x,o,x,o,x],
+     *           [o,x,o,x,o,x],
+     *           [o,x,o,x,o,x]] 를 검사할때 세로 방향을 0 ~ 4 번의 index로 잡는다면 0번 index의 o는 2번 index의 o까지만 검사하면 그 이후 요소들은 검사할 필요가 없음.
+     */
     for (let col = 0; col < boardSize; col++) {
       for (let row = 0; row <= boardSize - winTarget; row++) {
         let sameValue = true;
         const firstCellValue = board[row][col];
         if (firstCellValue === null) continue;
 
+        /**
+         * @description 세로 방향으로 한개씩 index를 올리면서 firstCellValue와 일치는지 검사.
+         * @description 일치하지 않는 경우 sameValue를 false로 변경하고 break.
+         */
         for (let i = 1; i < winTarget; i++) {
           if (board[row + i][col] !== firstCellValue) {
             sameValue = false;
@@ -61,13 +88,19 @@ const GamePlay = () => {
           }
         }
 
+        /**
+         * @description 위의 검사를 통과해 sameValue가 true로 유지된다면 승리 조건을 만족함.
+         * @returns {CellValue} 승리자의 마크. "X" or "O"
+         */
         if (sameValue) {
           return firstCellValue;
         }
       }
     }
 
-    // 왼쪽 대각선 방향 검사
+    /**
+     * @description 세로방향 검사와 비슷
+     */
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = 0; col <= boardSize - winTarget; col++) {
         let sameValue = true;
@@ -87,7 +120,9 @@ const GamePlay = () => {
       }
     }
 
-    // 오른쪽 대각선 방향 검사
+    /**
+     * @description 세로방향 검사와 비슷
+     */
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = winTarget - 1; col < boardSize; col++) {
         let sameValue = true;

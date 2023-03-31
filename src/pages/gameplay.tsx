@@ -32,6 +32,10 @@ const GamePlay = () => {
   const [currentPlayer, setCurrentPlayer] =
     useState<CellValue>(randomStartPlayer);
   const [winner, setWinner] = useState<CellValue>(null);
+  /**
+   * @description 게임 보드의 이전 상태를 저장.
+   * @description 맨 처음에 보드의 초기상태를 저장하고 이후로 마킹이 될때마다 생긴 보드의 상태를 배열로 쌓는다.
+   */
   const [boardHistory, setBoardHistory] = useState<BoardState[]>([
     initialBoardState,
   ]);
@@ -99,6 +103,7 @@ const GamePlay = () => {
     }
 
     /**
+     * @description 왼쪽 대각선 방향 검사
      * @description 세로방향 검사와 비슷
      */
     for (let row = 0; row <= boardSize - winTarget; row++) {
@@ -121,6 +126,7 @@ const GamePlay = () => {
     }
 
     /**
+     * @description 오른쪽 대각선 방향 검사
      * @description 세로방향 검사와 비슷
      */
     for (let row = 0; row <= boardSize - winTarget; row++) {
@@ -145,7 +151,6 @@ const GamePlay = () => {
     return null;
   };
 
-  // 2. 무르기 기능 구현
   const handleUndo = () => {
     if (boardHistory.length > 1) {
       const newBoardHistory = [...boardHistory];
@@ -158,7 +163,12 @@ const GamePlay = () => {
     }
   };
 
-  // 3. 이전 상태를 보관하는 로직 추가
+  /**
+   * @description 셀 클릭시 실행되는 함수.
+   * @description 보드의 마킹과, 보드의 히스토리를 관리, 플레이어 전환, 승리 여부를 판단.
+   * @param {number} row - 클릭한 셀의 행 번호.
+   * @param {number} col - 클릭한 셀의 열 번호.
+   */
   const handleCellClick = (row: number, col: number) => {
     /**
      * @description 이미 누군가가 놓았거나, 이미 승자가 결정되었으면 더 이상 놓을 수 없음.

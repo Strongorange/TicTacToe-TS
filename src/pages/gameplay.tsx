@@ -8,6 +8,13 @@ import { useEffect, useState } from "react";
  */
 type CellValue = "X" | "O" | null;
 type BoardState = CellValue[][];
+/**
+ * @description undoCount는 각 플레이어가 undo를 몇번 했는지를 저장.
+ */
+interface UndoCountProps {
+  X: number;
+  O: number;
+}
 
 const GamePlay = () => {
   const router = useRouter();
@@ -32,6 +39,10 @@ const GamePlay = () => {
   const [currentPlayer, setCurrentPlayer] =
     useState<CellValue>(randomStartPlayer);
   const [winner, setWinner] = useState<CellValue>(null);
+  const [undoCount, setUndoCount] = useState<UndoCountProps>({
+    X: 0,
+    O: 0,
+  });
   /**
    * @description 게임 보드의 이전 상태를 저장.
    * @description 맨 처음에 보드의 초기상태를 저장하고 이후로 마킹이 될때마다 생긴 보드의 상태를 배열로 쌓는다.
@@ -152,12 +163,21 @@ const GamePlay = () => {
   };
 
   const handleUndo = () => {
+    /**
+     * @description undoCount가 3이상이면 더이상 undo를 할 수 없음.
+     */
+    if (undoCount[currentPlayer!] > 3) return;
+
     if (boardHistory.length > 1) {
       const newBoardHistory = [...boardHistory];
       newBoardHistory.pop();
       setBoardHistory(newBoardHistory);
       setBoardState(newBoardHistory[newBoardHistory.length - 1]);
 
+      // 플레이어의 undoCount를 1 증가
+      const newUndoCount = { ...undoCount };
+      newUndoCount[currentPlayer!] += 1;
+      setUndoCount(newUndoCount);
       // 플레이어 전환
       setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
     }
@@ -249,6 +269,13 @@ const GamePlay = () => {
           >
             Undo
           </button>
+          <div>
+            <h1 className="text-3xl">남은 무르기 횟수</h1>
+            <div className="flex items-center justify-between text-xl">
+              <h3>X: {3 - undoCount.X}</h3>
+              <h3>O: {3 - undoCount.O}</h3>
+            </div>
+          </div>
         </div>
       </div>
     </>

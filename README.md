@@ -7,7 +7,7 @@
 SSR 사용하여 query로 받은 boardSize, winTarget을 props로 넘겨주고
 Hydration 문제를 야기시키는 randomStartPlayer 함수를 서버사이드로 옮겨 시작 플레이어를 서버에서 랜덤으로 정해줌
 
-## 게임저장하고 불러올때 몇번째 턴인지 표시하는 기능
+## 현재 턴 정보 저장하기
 
 boardHistory로 게임 보드 상태를 관리했기에 게임 저장 자체는 어렵지 않았으나
 각 기호위에 해당 기호가 놓인 차례를 표시해주는 기능을 구현하는데 어려움을 겪었다.  
@@ -45,7 +45,7 @@ boardHistory로 게임 보드 상태를 관리했기에 게임 저장 자체는 
 2. - [x] 새로워진 구조에 맞게 initialBoardState 함수 수정
 3. - [x] currentTurn state 추가
 
-4. - [ ] handleCellClick 함수 수정
+4. - [x] handleCellClick 함수 수정
    1. - [x] winner나 위치에 플레이어가 있을때 return
    2. - [x] row-col 위치에 플레이어 정보와 턴 정보 저장
    3. - [x] 위 과정이 끝나면 turn + 1
@@ -92,6 +92,9 @@ const handlCellClick = (row: number, col: number) => {
 
 불변성을 위지하기 위해 spread operator를 사용했으며 이렇게하면 `newBoardState`는 `boardState` 와 다른 참조를 가지게되어 연관성이 없는 독립적인 객체가 된다.
 
+> 정상적인 위치에 턴 정보, 플레이어 정보가 저장되는 것을 확인할 수 있다.
+> <img width="920" alt="image" src="https://user-images.githubusercontent.com/74127841/229264878-92185652-3cbf-43b4-b950-8ed5995865cf.png">
 
-<img width="920" alt="image" src="https://user-images.githubusercontent.com/74127841/229264878-92185652-3cbf-43b4-b950-8ed5995865cf.png">
+## 게임 저장
 
+이제 boardState에 턴 정보까지 저장하는 것을 성공했으니 게임을 저장하는 기능을 구현해보자.

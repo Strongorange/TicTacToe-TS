@@ -1,6 +1,12 @@
 import { ButtonHTMLAttributes } from "react";
 
-type Variant = "default" | "start" | "savedGame";
+type Variant =
+  | "default"
+  | "start"
+  | "savedGame"
+  | "goHome"
+  | "restartGame"
+  | "saveGame";
 type Size = "sm" | "md" | "lg" | "xl";
 
 /**
@@ -21,6 +27,9 @@ const variantClasses = {
   default: "bg-black hover:bg-opacity-75",
   start: "bg-green-600 hover:bg-opacity-75",
   savedGame: "bg-black hover:bg-opacity-75",
+  goHome: "bg-blue-700 hover:bg-opacity-75",
+  restartGame: "bg-gray-700 hover:bg-opacity-75",
+  saveGame: "bg-black hover:bg-opacity-75",
 };
 
 const sizeClasses = {

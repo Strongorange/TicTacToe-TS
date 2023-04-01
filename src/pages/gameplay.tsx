@@ -1,5 +1,8 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import useModal from "@/hooks/useModal";
+import GameEnd from "@/components/modals/GameEnd";
+import { GetServerSidePropsContext } from "next";
 
 /**
  * @description null은 아직 놓이지 않은 상태.
@@ -16,11 +19,40 @@ interface UndoCountProps {
   O: number;
 }
 
-const GamePlay = () => {
+interface ServerSideProps {
+  boardSize: number;
+  winTarget: number;
+  randomStartPlayer: CellValue;
+}
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { boardSize, winTarget } = context.query;
+  const randomStartPlayer = Math.random() < 0.5 ? "X" : "O";
+
+  return {
+    props: {
+      boardSize: Number(boardSize),
+      winTarget: Number(winTarget),
+      randomStartPlayer,
+    },
+  };
+};
+
+const GamePlay = (props: ServerSideProps) => {
   const router = useRouter();
+  const { openModal } = useModal();
   const { boardSize: queryBoardSize, winTarget: queryWinTarget } = router.query;
-  const boardSize = Number(queryBoardSize);
-  const winTarget = Number(queryWinTarget);
+  // const boardSize = Number(queryBoardSize);
+  // const winTarget = Number(queryWinTarget);
+  const [boardSize, setBoardSize] = useState<number>(
+    Number(queryBoardSize || props.boardSize)
+  );
+  const [winTarget, setWinTarget] = useState<number>(
+    Number(queryWinTarget || props.winTarget)
+  );
+
   /**
    * @description 게임 보드의 초기 상태를 생성.
    * @description 게임 보드의 크기는 boardSize * boardSize.
@@ -33,11 +65,11 @@ const GamePlay = () => {
   /**
    * @description 랜덤으로 플레이어를 정함.
    */
-  const randomStartPlayer = Math.random() < 0.5 ? "X" : "O";
 
   const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
-  const [currentPlayer, setCurrentPlayer] =
-    useState<CellValue>(randomStartPlayer);
+  const [currentPlayer, setCurrentPlayer] = useState<CellValue>(
+    props.randomStartPlayer
+  );
   const [winner, setWinner] = useState<CellValue>(null);
   const [undoCount, setUndoCount] = useState<UndoCountProps>({
     X: 0,
@@ -245,14 +277,24 @@ const GamePlay = () => {
   };
 
   useEffect(() => {
-    if (queryBoardSize && queryWinTarget) {
-      console.log(boardSize, winTarget);
-    }
-  }, [queryBoardSize, queryWinTarget]);
-
-  useEffect(() => {
     setWinner(checkWinner(boardState));
   }, [boardState]);
+
+  /**
+   * @description 승자가 결정되면, 승자를 표시하는 모달을 띄움.
+   */
+  useEffect(() => {
+    if (winner) {
+      const showEndGameModal = () => {
+        openModal({
+          title: `승자는 ${winner}입니다!`,
+          content: <GameEnd boardSize={boardSize} winTarget={winTarget} />,
+        });
+      };
+
+      showEndGameModal();
+    }
+  }, [winner]);
 
   return (
     <>

@@ -201,3 +201,6 @@ const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
 image.png
 
 ## 게임 불러오기
+
+게임을 저장하는 기능을 구현했으니 저장한 게임을 불러오는 기능을 구현해보자.
+/savedgames 페이지를 만들고 저장된 게임을 목록으로 보여준다.

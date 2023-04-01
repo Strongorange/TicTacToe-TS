@@ -31,12 +31,12 @@ interface ServerSideProps {
   randomStartPlayer: CellValue;
 }
 
-interface GameData {
+export interface GameData {
   boardHistory: BoardState[];
   savedAt: string;
 }
 
-interface SavedGames {
+export interface SavedGames {
   games: GameData[];
 }
 

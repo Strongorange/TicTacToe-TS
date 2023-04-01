@@ -1,4 +1,8 @@
-# Directional-Test
+# Tic Tac Toe with Next.js and TypeScript
+
+# TODO
+
+- [ ] 게임 완성후 Firebaes에 유저별로 데이터 저장하기
 
 # 메인 트러블 슈팅
 
@@ -98,3 +102,102 @@ const handlCellClick = (row: number, col: number) => {
 ## 게임 저장
 
 이제 boardState에 턴 정보까지 저장하는 것을 성공했으니 게임을 저장하는 기능을 구현해보자.
+
+### 어디까지 저장할까?
+
+> boardHistory 전체 vs boardHistory의 마지막 요소만 저장
+
+현재 게임판의 변화는 boardHistory에 저장되고 이를 통해 게임의 상황을 추적할 수 있다.  
+게임이 종료된 판을 다시 불러와 턴 수를 표시해주는 기능이라면 gameHistory의 가장 마지막 요소를 불러오면 되고 기능이 그 뿐이라면 gameHistory 배열 전체를 다 보낼 필요없이 가장 마지막 요소만 보내면 된다.
+
+하지만 추후에 어떤 기능을 추가할지 모르기 때문에 게임의 모든 정보를 저장하는 것이 좋다고 생각하여 gameHistory 배열 전체를 저장하도록 구현하였다.
+
+> 어디에 저장할까?
+
+데이터를 저장하는 방법은 여러가지가 있고 개인적으로 localStorage와 firebase를 사용하는 것을 좋아해 비교해보았다.
+
+- localStorage
+
+  - 가장 간단함
+  - 오프라인에서도 동작
+
+- firebase
+  - 유저별로 데이터를 저장할 수 있음
+  - 인터넷 연결이 가능한 어디서든 접근 가능
+  - 유저간 데이터를 기반으로 다양한 기능을 제공할 수 있음
+
+firebase를 사용하고 싶지만 일단 앱을 만들고 나서 firebase를 사용하는 것이 더 좋을 것 같아서 localStorage를 사용하기로 결정하였다.
+
+### 구현
+
+게임이 끝나고 모달창의 저장 버튼을 누르면 현재 게임의 boardHistory를 localStorage에 저장한다.  
+하지만 현재 boardHistory 는 gameplay.tsx의 상태로 관리되고 있기 때문에 Modal에서 직접적으로 boardHistory에 접근할 수 없다.
+
+이를 해결하가 위해 Recoil을 사용해 boardHistory를 전역 상태로 관리할 수도 있지만 상태 하나만을 위해 굳이 그렇게까지 할 필요는 없다고 생각해 saveGame을 콜백함수로 전달하여 Modal에서 게임을 저장할 수 있게 하였다.
+
+> gameplay.tsx
+
+```typescript
+/**
+ * @description 게임을 localStorage에 저장하는 함수.
+ * @param boardHistory boardHistory를 저장.
+ */
+const saveGame = (boardHistory: BoardState[]) => {
+  const localStorageSavedGames = localStorage.getItem("savedGames");
+  let savedGames;
+  if (localStorageSavedGames) {
+    savedGames = JSON.parse(localStorageSavedGames);
+  } else {
+    savedGames = {
+      games: [],
+    };
+  }
+
+  savedGames.games.push(boardHistory);
+  localStorage.setItem("savedGames", JSON.stringify(savedGames));
+};
+
+/**
+ * @description 승자가 결정되면, 승자를 표시하는 모달을 띄움.
+ */
+useEffect(() => {
+  if (winner) {
+    const showEndGameModal = () => {
+      openModal({
+        title: `승자는 ${winner}입니다!`,
+        content: (
+          <GameEnd
+            boardSize={boardSize}
+            winTarget={winTarget}
+            saveGame={() => saveGame(boardHistory)}
+          />
+        ),
+      });
+    };
+
+    showEndGameModal();
+  }
+}, [winner]);
+```
+
+> GameEndModal.tsx (모달 컨텐츠 페이지)
+
+```typescript
+const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
+  /** ... */
+
+  <ButtonBase
+    variant="saveGame"
+    size="xl"
+    onClick={saveGame ? saveGame : undefined}
+  >
+    게임 저장
+  </ButtonBase>;
+};
+```
+
+> 성공적으로 localStorage에 저장
+
+image.png
+
+## 게임 불러오기

@@ -16,7 +16,7 @@ interface Cell {
   turn: number | null;
 }
 
-type BoardState = Cell[][];
+export type BoardState = Cell[][];
 /**
  * @description undoCount는 각 플레이어가 undo를 몇번 했는지를 저장.
  */
@@ -29,6 +29,15 @@ interface ServerSideProps {
   boardSize: number;
   winTarget: number;
   randomStartPlayer: CellValue;
+}
+
+interface GameData {
+  boardHistory: BoardState[];
+  savedAt: string;
+}
+
+interface SavedGames {
+  games: GameData[];
 }
 
 export const getServerSideProps = async (
@@ -300,6 +309,37 @@ const GamePlay = (props: ServerSideProps) => {
     );
   };
 
+  /**
+   * @description 게임을 localStorage에 저장하는 함수.
+   * @param boardHistory boardHistory를 저장.
+   */
+  const saveGame = (boardHistory: BoardState[]): void => {
+    const localStorageSavedGames = localStorage.getItem("savedGames");
+    let savedGames: SavedGames;
+
+    if (localStorageSavedGames) {
+      savedGames = JSON.parse(localStorageSavedGames);
+    } else {
+      savedGames = {
+        games: [],
+      };
+    }
+
+    /**
+     * @description 게임을 저장할 때, 현재 시간을 ISOString으로 저장.
+     */
+    const now = new Date();
+
+    const gameData: GameData = {
+      boardHistory,
+      savedAt: now.toISOString(),
+    };
+
+    savedGames.games.push(gameData);
+
+    localStorage.setItem("savedGames", JSON.stringify(savedGames));
+  };
+
   useEffect(() => {
     setWinner(checkWinner(boardState));
   }, [boardState]);
@@ -312,7 +352,13 @@ const GamePlay = (props: ServerSideProps) => {
       const showEndGameModal = () => {
         openModal({
           title: `승자는 ${winner}입니다!`,
-          content: <GameEnd boardSize={boardSize} winTarget={winTarget} />,
+          content: (
+            <GameEnd
+              boardSize={boardSize}
+              winTarget={winTarget}
+              saveGame={() => saveGame(boardHistory)}
+            />
+          ),
         });
       };
 
@@ -324,6 +370,7 @@ const GamePlay = (props: ServerSideProps) => {
     <>
       <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
         <div className="flex flex-col items-center">
+          <h1 className="text-4xl font-bold">현재 턴 : {currentTurn}</h1>
           <div className="flex flex-col border border-black p-5">
             {boardState.map(renderRow)}
           </div>

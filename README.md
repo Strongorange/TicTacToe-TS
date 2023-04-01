@@ -91,3 +91,7 @@ const handlCellClick = (row: number, col: number) => {
 ```
 
 불변성을 위지하기 위해 spread operator를 사용했으며 이렇게하면 `newBoardState`는 `boardState` 와 다른 참조를 가지게되어 연관성이 없는 독립적인 객체가 된다.
+
+
+<img width="920" alt="image" src="https://user-images.githubusercontent.com/74127841/229264878-92185652-3cbf-43b4-b950-8ed5995865cf.png">
+

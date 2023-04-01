@@ -9,6 +9,10 @@ export default function Home() {
     router.push("/board");
   };
 
+  const handleSavedGameButton = () => {
+    router.push("/savedgames");
+  };
+
   return (
     <>
       <Head>
@@ -23,7 +27,11 @@ export default function Home() {
             <ButtonBase variant="start" size="xl" onClick={handleStartButton}>
               시작
             </ButtonBase>
-            <ButtonBase variant="savedGame" size="xl">
+            <ButtonBase
+              variant="savedGame"
+              size="xl"
+              onClick={handleSavedGameButton}
+            >
               저장된 게임
             </ButtonBase>
           </div>

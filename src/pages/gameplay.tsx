@@ -10,7 +10,13 @@ import { GetServerSidePropsContext } from "next";
  * @description "O"는 플레이어 2의 표시.
  */
 type CellValue = "X" | "O" | null;
-type BoardState = CellValue[][];
+
+interface Cell {
+  player: CellValue;
+  turn: number | null;
+}
+
+export type BoardState = Cell[][];
 /**
  * @description undoCount는 각 플레이어가 undo를 몇번 했는지를 저장.
  */
@@ -25,10 +31,23 @@ interface ServerSideProps {
   randomStartPlayer: CellValue;
 }
 
+export interface GameData {
+  boardHistory: BoardState[];
+  savedAt: string;
+}
+
+export interface SavedGames {
+  games: GameData[];
+}
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const { boardSize, winTarget } = context.query;
+  /**
+   * @description 랜덤으로 플레이어를 정함.
+   */
+
   const randomStartPlayer = Math.random() < 0.5 ? "X" : "O";
 
   return {
@@ -44,8 +63,8 @@ const GamePlay = (props: ServerSideProps) => {
   const router = useRouter();
   const { openModal } = useModal();
   const { boardSize: queryBoardSize, winTarget: queryWinTarget } = router.query;
-  // const boardSize = Number(queryBoardSize);
-  // const winTarget = Number(queryWinTarget);
+
+  const [currentTurn, setCurrentTurn] = useState<number>(1);
   const [boardSize, setBoardSize] = useState<number>(
     Number(queryBoardSize || props.boardSize)
   );
@@ -60,11 +79,7 @@ const GamePlay = (props: ServerSideProps) => {
    */
   const initialBoardState: BoardState = new Array(boardSize)
     .fill(null)
-    .map(() => new Array(boardSize).fill(null));
-
-  /**
-   * @description 랜덤으로 플레이어를 정함.
-   */
+    .map(() => new Array(boardSize).fill({ player: null, turn: null }));
 
   const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
   const [currentPlayer, setCurrentPlayer] = useState<CellValue>(
@@ -82,6 +97,16 @@ const GamePlay = (props: ServerSideProps) => {
   const [boardHistory, setBoardHistory] = useState<BoardState[]>([
     initialBoardState,
   ]);
+
+  /**
+   * @description 보드의 턴 수를 증가시킴, boardSize * boradSize 보다 커지지 못하게 함.
+   * @param boardSize {number} 게임 보드의 가로, 세로 크기
+   */
+  const handleTurnUp = (boardSize: number) => {
+    const maxTurn = boardSize * boardSize;
+    if (currentTurn > maxTurn) return;
+    setCurrentTurn((prev) => prev + 1);
+  };
 
   /**
    * @description 게임 보드의 가로, 세로, 대각선 방향을 검사하여 승리자를 찾음.
@@ -103,8 +128,12 @@ const GamePlay = (props: ServerSideProps) => {
          * @description winRow의 모든 요소가 같은 값이고 null이 아닌 경우 승리 조건을 만족함.
          * @returns {CellValue} 승리자의 표시.
          */
-        if (winRow.every((cell) => cell === winRow[0] && cell !== null)) {
-          return winRow[0];
+        if (
+          winRow.every(
+            (cell) => cell.player === winRow[0].player && cell.player !== null
+          )
+        ) {
+          return winRow[0].player;
         }
       }
     }
@@ -121,7 +150,7 @@ const GamePlay = (props: ServerSideProps) => {
     for (let col = 0; col < boardSize; col++) {
       for (let row = 0; row <= boardSize - winTarget; row++) {
         let sameValue = true;
-        const firstCellValue = board[row][col];
+        const firstCellValue = board[row][col].player;
         if (firstCellValue === null) continue;
 
         /**
@@ -129,7 +158,7 @@ const GamePlay = (props: ServerSideProps) => {
          * @description 일치하지 않는 경우 sameValue를 false로 변경하고 break.
          */
         for (let i = 1; i < winTarget; i++) {
-          if (board[row + i][col] !== firstCellValue) {
+          if (board[row + i][col].player !== firstCellValue) {
             sameValue = false;
             break;
           }
@@ -152,11 +181,11 @@ const GamePlay = (props: ServerSideProps) => {
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = 0; col <= boardSize - winTarget; col++) {
         let sameValue = true;
-        const firstCellValue = board[row][col];
+        const firstCellValue = board[row][col].player;
         if (firstCellValue === null) continue;
 
         for (let i = 1; i < winTarget; i++) {
-          if (board[row + i][col + i] !== firstCellValue) {
+          if (board[row + i][col + i].player !== firstCellValue) {
             sameValue = false;
             break;
           }
@@ -175,11 +204,11 @@ const GamePlay = (props: ServerSideProps) => {
     for (let row = 0; row <= boardSize - winTarget; row++) {
       for (let col = winTarget - 1; col < boardSize; col++) {
         let sameValue = true;
-        const firstCellValue = board[row][col];
+        const firstCellValue = board[row][col].player;
         if (firstCellValue === null) continue;
 
         for (let i = 1; i < winTarget; i++) {
-          if (board[row + i][col - i] !== firstCellValue) {
+          if (board[row + i][col - i].player !== firstCellValue) {
             sameValue = false;
             break;
           }
@@ -225,7 +254,7 @@ const GamePlay = (props: ServerSideProps) => {
     /**
      * @description 이미 누군가가 놓았거나, 이미 승자가 결정되었으면 더 이상 놓을 수 없음.
      */
-    if (winner || boardState[row][col]) {
+    if (winner || boardState[row][col].player) {
       return;
     }
 
@@ -235,8 +264,11 @@ const GamePlay = (props: ServerSideProps) => {
      * @description 새로운 보드 상태를 boardHistory에 추가. (이전 상태를 보관하는 로직 추가)
      * @description 새로운 보드 상태를 boardState에 저장.
      */
-    const newBoardState = boardState.map((row) => [...row]);
-    newBoardState[row][col] = currentPlayer;
+    const newBoardState = boardState.map((row) =>
+      row.map((col) => ({ ...col }))
+    );
+    newBoardState[row][col].player = currentPlayer;
+    newBoardState[row][col].turn = currentTurn;
     const newBoardHistory = [...boardHistory, newBoardState];
     setBoardState(newBoardState);
     setBoardHistory(newBoardHistory);
@@ -250,11 +282,12 @@ const GamePlay = (props: ServerSideProps) => {
       setWinner(gameWinner);
     } else {
       setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+      handleTurnUp(boardSize);
     }
   };
 
   const renderCell = (row: number, col: number) => {
-    const value = boardState[row][col];
+    const value = boardState[row][col].player;
     const cellText = value ? value : "";
 
     return (
@@ -268,12 +301,43 @@ const GamePlay = (props: ServerSideProps) => {
     );
   };
 
-  const renderRow = (row: CellValue[], rowIndex: number) => {
+  const renderRow = (row: Cell[], rowIndex: number) => {
     return (
       <div key={rowIndex} className="flex justify-center">
         {row.map((_, colIndex) => renderCell(rowIndex, colIndex))}
       </div>
     );
+  };
+
+  /**
+   * @description 게임을 localStorage에 저장하는 함수.
+   * @param boardHistory boardHistory를 저장.
+   */
+  const saveGame = (boardHistory: BoardState[]): void => {
+    const localStorageSavedGames = localStorage.getItem("savedGames");
+    let savedGames: SavedGames;
+
+    if (localStorageSavedGames) {
+      savedGames = JSON.parse(localStorageSavedGames);
+    } else {
+      savedGames = {
+        games: [],
+      };
+    }
+
+    /**
+     * @description 게임을 저장할 때, 현재 시간을 ISOString으로 저장.
+     */
+    const now = new Date();
+
+    const gameData: GameData = {
+      boardHistory,
+      savedAt: now.toISOString(),
+    };
+
+    savedGames.games.push(gameData);
+
+    localStorage.setItem("savedGames", JSON.stringify(savedGames));
   };
 
   useEffect(() => {
@@ -288,7 +352,13 @@ const GamePlay = (props: ServerSideProps) => {
       const showEndGameModal = () => {
         openModal({
           title: `승자는 ${winner}입니다!`,
-          content: <GameEnd boardSize={boardSize} winTarget={winTarget} />,
+          content: (
+            <GameEnd
+              boardSize={boardSize}
+              winTarget={winTarget}
+              saveGame={() => saveGame(boardHistory)}
+            />
+          ),
         });
       };
 
@@ -300,6 +370,7 @@ const GamePlay = (props: ServerSideProps) => {
     <>
       <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
         <div className="flex flex-col items-center">
+          <h1 className="text-4xl font-bold">현재 턴 : {currentTurn}</h1>
           <div className="flex flex-col border border-black p-5">
             {boardState.map(renderRow)}
           </div>

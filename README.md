@@ -198,7 +198,8 @@ const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
 
 > 성공적으로 localStorage에 저장
 
-image.png
+<img width="521" alt="image" src="https://user-images.githubusercontent.com/74127841/229268784-d2b25e5d-0aff-4daa-86df-eb2a16fdd603.png">
+
 
 ## 게임 불러오기
 

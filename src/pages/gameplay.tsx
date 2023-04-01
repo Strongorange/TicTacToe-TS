@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import useModal from "@/hooks/useModal";
+import GameEnd from "@/components/modals/GameEnd";
 
 /**
  * @description null은 아직 놓이지 않은 상태.
@@ -18,9 +20,12 @@ interface UndoCountProps {
 
 const GamePlay = () => {
   const router = useRouter();
+  const { openModal } = useModal();
   const { boardSize: queryBoardSize, winTarget: queryWinTarget } = router.query;
   const boardSize = Number(queryBoardSize);
   const winTarget = Number(queryWinTarget);
+  // const [boardSize, setBoardSize] = useState<number>(Number(queryBoardSize));
+
   /**
    * @description 게임 보드의 초기 상태를 생성.
    * @description 게임 보드의 크기는 boardSize * boardSize.
@@ -253,6 +258,22 @@ const GamePlay = () => {
   useEffect(() => {
     setWinner(checkWinner(boardState));
   }, [boardState]);
+
+  /**
+   * @description 승자가 결정되면, 승자를 표시하는 모달을 띄움.
+   */
+  useEffect(() => {
+    if (winner) {
+      const showEndGameModal = () => {
+        openModal({
+          title: `승자는 ${winner}입니다!`,
+          content: <GameEnd boardSize={boardSize} winTarget={winTarget} />,
+        });
+      };
+
+      showEndGameModal();
+    }
+  }, [winner]);
 
   return (
     <>

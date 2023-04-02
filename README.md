@@ -8,6 +8,9 @@ Typescript와 Next.js를 사용해서 만든 간단한 틱택토 게임입니다
 </br>
 </br>
 
+# 데모 [🌐](https://bit.ly/40xSiQF)
+[https://bit.ly/40xSiQF](https://bit.ly/40xSiQF)
+
 # 기술 스택
 
 - Typescript

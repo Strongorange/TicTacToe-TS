@@ -9,9 +9,9 @@ import { GetServerSidePropsContext } from "next";
  * @description "X"는 플레이어 1의 표시.
  * @description "O"는 플레이어 2의 표시.
  */
-type CellValue = "X" | "O" | null;
+export type CellValue = "X" | "O" | null;
 
-interface Cell {
+export interface Cell {
   player: CellValue;
   turn: number | null;
 }

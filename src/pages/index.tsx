@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Directional Test</title>
+        <title>Tic-Tac-Toe</title>
       </Head>
       <main>
         <div className="flex h-screen w-full items-center justify-center bg-amber-200">

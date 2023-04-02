@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import useModal from "@/hooks/useModal";
 import GameEnd from "@/components/modals/GameEnd";
 import { GetServerSidePropsContext } from "next";
+import Head from "next/head";
 
 /**
  * @description null은 아직 놓이지 않은 상태.
@@ -368,6 +369,9 @@ const GamePlay = (props: ServerSideProps) => {
 
   return (
     <>
+      <Head>
+        <title>Playing</title>
+      </Head>
       <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold">현재 턴 : {currentTurn}</h1>

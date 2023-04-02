@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { GameData as GameDataI, BoardState, Cell } from "@/pages/gameplay";
 import { GetServerSidePropsContext } from "next";
+import Head from "next/head";
 
 interface ServerSideProps {
   gameData: GameDataI;
@@ -73,12 +74,17 @@ const SavedGamePlayPage = ({ gameData }: ServerSideProps) => {
   }, [gameDataState, boardState]);
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
-      <div className="flex flex-col border border-black p-5">
-        {boardState && boardState.map(renderRow)}
-        <div className=""></div>
+    <>
+      <Head>
+        <title>Replay</title>
+      </Head>
+      <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
+        <div className="flex flex-col border border-black p-5">
+          {boardState && boardState.map(renderRow)}
+          <div className=""></div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

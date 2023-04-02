@@ -342,3 +342,37 @@ const SavedGamePlayPage = ({ gameData }: ServerSideProps) => {
   );
 };
 ```
+
+마지막 보드의 상태 불러오기 성공
+image.png
+
+## 불러온 게임의 기호 위에 턴 수 표시하기
+
+성공적으로 저장된 게임을 불러오는 것에 성공했고 이제 불러온 게임의 기호 위에 턴 수를 표시해보자.
+현재 2차원 배열의 각 원소는 player와 turn으로 이루어져있고 player키를 통해 기호를 표시하고있다.
+이제 turn키를 사용하여 턴 수를 표시하기 위해서 데이터의 렌더링을 담담하고있는 renderCell 함수를 수정한다.
+
+```typescript
+const renderCell = (row: number, col: number) => {
+  const value = boardState![row][col].player;
+  const turn = boardState![row][col].turn;
+  const cellText = value ? value : "";
+
+  return (
+    <div
+      key={`${row}-${col}`}
+      className="relative flex h-32 w-32 items-center justify-center border border-black text-6xl"
+    >
+      <div className="absolute top-0">{cellText}</div>
+      {turn && (
+        <div className="absolute bottom-0 flex w-3/4 items-center justify-center rounded-3xl bg-slate-400 text-3xl">
+          {turn}턴
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+턴수 표시
+image.png

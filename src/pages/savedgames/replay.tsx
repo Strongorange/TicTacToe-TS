@@ -32,14 +32,20 @@ const SavedGamePlayPage = ({ gameData }: ServerSideProps) => {
 
   const renderCell = (row: number, col: number) => {
     const value = boardState![row][col].player;
+    const turn = boardState![row][col].turn;
     const cellText = value ? value : "";
 
     return (
       <div
         key={`${row}-${col}`}
-        className="flex h-32 w-32 items-center justify-center border border-black text-6xl"
+        className="relative flex h-32 w-32 items-center justify-center border border-black text-6xl"
       >
-        {cellText}
+        <div className="absolute top-0">{cellText}</div>
+        {turn && (
+          <div className="absolute bottom-0 flex w-3/4 items-center justify-center rounded-3xl bg-slate-400 text-3xl">
+            {turn}턴
+          </div>
+        )}
       </div>
     );
   };

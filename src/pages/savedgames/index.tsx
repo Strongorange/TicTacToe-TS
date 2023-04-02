@@ -42,7 +42,7 @@ const SavedGamesPage = () => {
         <title>Saved Games</title>
       </Head>
       <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
-        <div className="box-border flex h-1/2 w-1/3 flex-col justify-center gap-y-10 rounded-3xl bg-amber-800 p-14 text-2xl">
+        <div className="box-border flex h-1/2 w-1/3 flex-col justify-center gap-y-10 rounded-3xl bg-amber-400 p-14 text-2xl">
           {savedGames && savedGames.games.length > 0
             ? savedGames.games.map((item, index) =>
                 renderSavedGames(item, index)

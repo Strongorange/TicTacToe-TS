@@ -33,7 +33,7 @@ const Board = () => {
         <title>Select Options</title>
       </Head>
       <div className="flex h-screen w-full items-center justify-center bg-amber-200">
-        <div className="box-border flex h-1/2 w-1/3 flex-col justify-center gap-y-10 rounded-3xl bg-amber-800 p-14 text-2xl">
+        <div className="box-border flex h-1/2 flex-col justify-center gap-y-10 rounded-3xl bg-amber-400 p-14 text-2xl ">
           <h1>게임판 크기</h1>
           <div className="flex w-full items-center justify-between gap-7">
             <ButtonBase
@@ -65,9 +65,9 @@ const Board = () => {
             </ButtonBase>
           </div>
           <div>
-            <div className="flex w-full justify-between">
+            <div className="flex w-full justify-between ">
               <h1>승리조건</h1>
-              <div className="flex w-1/3 items-center justify-between">
+              <div className="flex w-2/3 items-center justify-between">
                 <label>
                   <input
                     type="radio"
@@ -91,13 +91,15 @@ const Board = () => {
               </div>
             </div>
           </div>
-          <div className="w-full">
+          <div className="flex w-full items-center gap-6">
             {isCustom ? (
               <>
                 <label htmlFor="customWinNumber">숫자 입력</label>
                 <input
+                  className="w-2/3 p-3"
                   id="customWinNumber"
                   type={"number"}
+                  value={winTarget}
                   max={5}
                   min={3}
                   onChange={(e) => setWinTarget(Number(e.target.value))}

@@ -1,7 +1,9 @@
 import { ButtonHTMLAttributes } from "react";
+import { AiOutlineCheck } from "react-icons/ai";
 
 type Variant =
   | "default"
+  | "boardSize"
   | "start"
   | "savedGame"
   | "goHome"
@@ -19,12 +21,14 @@ interface ButtonBaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: Variant;
   size: Size;
   fullWidth: boolean;
+  selected?: boolean;
 }
 
 export type ButtonBasePropsOptional = Partial<ButtonBaseProps>;
 
 const variantClasses = {
   default: "bg-black hover:bg-opacity-75",
+  boardSize: "bg-green-600 hover:bg-opacity-75",
   start: "bg-green-600 hover:bg-opacity-75",
   savedGame: "bg-black hover:bg-opacity-75",
   goHome: "bg-blue-700 hover:bg-opacity-75",
@@ -44,17 +48,24 @@ const ButtonBase = ({
   size,
   fullWidth,
   children,
+  selected,
   ...props
 }: ButtonBasePropsOptional) => {
   const variantClass = variantClasses[variant!];
   const sizeClass = sizeClasses[size!];
   const fullSizeClass = fullWidth ? "w-full" : null;
+
   return (
     <button
       {...props}
       className={`relative box-border flex min-w-[64px] cursor-pointer select-none items-center justify-center gap-1 text-ellipsis whitespace-nowrap rounded-lg text-white transition-all ${fullSizeClass} ${sizeClass} ${variantClass}`}
     >
       {children}
+      {selected && (
+        <div className="absolute">
+          <AiOutlineCheck color="#ff5c00" size="90px" />
+        </div>
+      )}
     </button>
   );
 };

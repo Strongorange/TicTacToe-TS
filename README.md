@@ -200,8 +200,145 @@ const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
 
 <img width="521" alt="image" src="https://user-images.githubusercontent.com/74127841/229268784-d2b25e5d-0aff-4daa-86df-eb2a16fdd603.png">
 
-
 ## 게임 불러오기
 
 게임을 저장하는 기능을 구현했으니 저장한 게임을 불러오는 기능을 구현해보자.
 /savedgames 페이지를 만들고 저장된 게임을 목록으로 보여준다.
+savedgames 페이지에서는 localStorage에 저장된 게임을 불러오아 보여주고, 게임을 선택하면 게임을 불러오는 페이지로 이동시켜준다.
+
+### localStorage에서 게임 불러오기
+
+```typescript
+const [savedGames, setSavedGames] = useState<SavedGamesI>({ games: [] });
+
+useEffect(() => {
+  const localStorageSavedGames = localStorage.getItem("savedGames");
+  if (localStorageSavedGames) {
+    setSavedGames(JSON.parse(localStorageSavedGames));
+  }
+}, []);
+
+return (
+  <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
+    <div className="box-border flex h-1/2 w-1/3 flex-col justify-center gap-y-10 rounded-3xl bg-amber-800 p-14 text-2xl">
+      {savedGames && savedGames.games.length > 0
+        ? savedGames.games.map((item, index) => renderSavedGames(item, index))
+        : "저장된 게임이 없습니다."}
+    </div>
+  </div>
+);
+```
+
+useEffect를 사용하여 localStorage에 저장된 게임을 불러와 savedGames state에 저장후 데이터가 있는 경우 데이터를 보여주고 없는 경우 "저장된 게임이 없습니다."를 보여준다.
+
+### 저장된 게임 불러오기
+
+```typescript
+const handleGoToSavedGame = (gameData: GameDataI) => {
+  router.push({
+    pathname: `/savedgames/replay`,
+    query: { gameData: JSON.stringify(gameData) },
+  });
+};
+
+const renderSavedGames = (gameData: GameDataI, index: number) => {
+  return (
+    <div
+      key={index}
+      className="flex w-full cursor-pointer flex-col"
+      onClick={() => handleGoToSavedGame(gameData)}
+    >
+      {`${gameData.savedAt}에 저장된 게임`}
+    </div>
+  );
+};
+```
+
+저장된 데이터를 렌더링 할떄 클릭을하면 게임을 불러오는 페이지로 이동시켜주는 handleGoToSavedGame 함수를 달아주었다.
+
+handleGoToSavedGame에서 라우팅을 할때 쿼리로 게임 데이터를 전달해주어 페이지에서 게임 데이터를 사용할 수 있게했다.
+
+> Replay.tsx
+
+리플레이 페이지에서는 쿼리로 받은 게임 데이터를 사용하여 게임을 불러온다.
+이때 새로고침시에도 데이터가 유지될 수 있게 getServerSideProps를 사용하였다.
+
+```typescript
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { gameData } = context.query;
+  console.log(gameData);
+  if (gameData) {
+    return {
+      props: {
+        gameData: JSON.parse(gameData as string),
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
+```
+
+gameData를 console로 확인해보면
+
+콘솔 이미지
+image.png
+
+boardHistory와 savedAt으로 이루어졌고 boardState 상태는 boardHistory의 가장 마지막 상태이고 이를 사용해서 게임의 마지막 상태를 화면에 렌더링 할 수 있다.
+
+```typescript
+const SavedGamePlayPage = ({ gameData }: ServerSideProps) => {
+  const router = useRouter();
+  const [gameDataState, setGameDataState] = useState<GameDataI | null>(null);
+  const [boardState, setBoardState] = useState<BoardState | null>(null);
+
+  const renderCell = (row: number, col: number) => {
+    const value = boardState![row][col].player;
+    const cellText = value ? value : "";
+
+    return (
+      <div
+        key={`${row}-${col}`}
+        className="flex h-32 w-32 items-center justify-center border border-black text-6xl"
+      >
+        {cellText}
+      </div>
+    );
+  };
+
+  const renderRow = (row: Cell[], rowIndex: number) => {
+    return (
+      <div key={rowIndex} className="flex justify-center">
+        {row.map((_, colIndex) => renderCell(rowIndex, colIndex))}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (gameData) {
+      setGameDataState(gameData);
+      setBoardState(gameData.boardHistory[gameData.boardHistory.length - 1]);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("게임 데이터 스테이트");
+    console.log(gameDataState);
+    console.log("보드 스테이트");
+    console.log(boardState);
+  }, [gameDataState, boardState]);
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-amber-200 ">
+      <div className="flex flex-col border border-black p-5">
+        {boardState && boardState.map(renderRow)}
+        <div className=""></div>
+      </div>
+    </div>
+  );
+};
+```

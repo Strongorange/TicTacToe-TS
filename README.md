@@ -285,8 +285,9 @@ export const getServerSideProps = async (
 
 gameData를 console로 확인해보면
 
-콘솔 이미지
-image.png
+
+<img width="753" alt="image" src="https://user-images.githubusercontent.com/74127841/229349173-a1c19dad-3416-407b-b86f-9df30aeaf3f6.png">
+
 
 boardHistory와 savedAt으로 이루어졌고 boardState 상태는 boardHistory의 가장 마지막 상태이고 이를 사용해서 게임의 마지막 상태를 화면에 렌더링 할 수 있다.
 
@@ -343,8 +344,8 @@ const SavedGamePlayPage = ({ gameData }: ServerSideProps) => {
 };
 ```
 
-마지막 보드의 상태 불러오기 성공
-image.png
+<img width="353" alt="image" src="https://user-images.githubusercontent.com/74127841/229349170-bc553ca1-9735-45f9-9939-95acc9e109ca.png">
+
 
 ## 불러온 게임의 기호 위에 턴 수 표시하기
 
@@ -374,5 +375,6 @@ const renderCell = (row: number, col: number) => {
 };
 ```
 
-턴수 표시
-image.png
+
+<img width="366" alt="image" src="https://user-images.githubusercontent.com/74127841/229349164-03177ec5-af60-4320-8b86-101508c34e59.png">
+

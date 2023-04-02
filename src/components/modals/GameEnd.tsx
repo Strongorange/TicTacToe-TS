@@ -2,7 +2,6 @@ import React from "react";
 import ButtonBase from "../ButtonBase";
 import { useRouter } from "next/router";
 import useModal from "@/hooks/useModal";
-import { BoardState } from "@/pages/gameplay";
 
 interface GameEndProps {
   boardSize: number;
@@ -27,6 +26,16 @@ const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
     router.reload();
   };
 
+  const saveGameHandler = () => {
+    if (saveGame) {
+      saveGame();
+    } else {
+      alert("게임을 저장할 수 없습니다.");
+    }
+    closeModal();
+    router.push("/");
+  };
+
   return (
     <div className="flex h-full flex-col gap-5">
       <ButtonBase variant="goHome" size="xl" onClick={goHome}>
@@ -38,7 +47,7 @@ const GameEnd = ({ boardSize, winTarget, saveGame }: GameEndProps) => {
       <ButtonBase
         variant="saveGame"
         size="xl"
-        onClick={saveGame ? saveGame : undefined}
+        onClick={saveGame ? saveGameHandler : undefined}
       >
         게임 저장
       </ButtonBase>

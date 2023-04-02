@@ -2,12 +2,12 @@ import ButtonBase from "@/components/ButtonBase";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 
-type BoardSize = 0 | 3 | 4 | 5;
+type BoardSize = 3 | 4 | 5;
 type WinTarget = number;
 
 const Board = () => {
-  const [boardSize, setBoardSize] = useState<BoardSize>(0);
-  const [winTarget, setWinTarget] = useState<number>(0);
+  const [boardSize, setBoardSize] = useState<BoardSize>(3);
+  const [winTarget, setWinTarget] = useState<WinTarget>(3);
   const [isCustom, setIsCustom] = useState(false);
   const router = useRouter();
 
@@ -32,23 +32,29 @@ const Board = () => {
         <h1>게임판 크기</h1>
         <div className="flex w-full items-center justify-between gap-7">
           <ButtonBase
+            variant="boardSize"
             size="xl"
             fullWidth
             onClick={() => handleBoardSizeAndWinTarget(3)}
+            selected={boardSize === 3}
           >
             3x3
           </ButtonBase>
           <ButtonBase
+            variant="boardSize"
             size="xl"
             fullWidth
             onClick={() => handleBoardSizeAndWinTarget(4)}
+            selected={boardSize === 4}
           >
             4x4
           </ButtonBase>
           <ButtonBase
+            variant="boardSize"
             size="xl"
             fullWidth
             onClick={() => handleBoardSizeAndWinTarget(5)}
+            selected={boardSize === 5}
           >
             5x5
           </ButtonBase>
